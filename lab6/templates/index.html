@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab 6: Work with API</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Лабораторная работа №6: Работа с API</h1>
+
+        <div class="section">
+            <h2>Задание 1: Поиск книг в Google Books</h2>
+            <form action="/books/search" method="get">
+                <input type="text" name="q" value="{{ query or 'Python programming' }}" placeholder="Введите название книги или автора">
+                <button type="submit">Найти книги</button>
+            </form>
+
+            {% if show_books and books %}
+            <div class="results">
+                <h3>Результаты поиска для "{{ query }}":</h3>
+                {% for book in books %}
+                <div class="book-card">
+                    <h4>{{ book.title }}</h4>
+                    <p><strong>Автор:</strong> {{ book.authors | join(", ") }}</p>
+                    <p><strong>Дата публикации:</strong> {{ book.published_date or "Не указана" }}</p>
+                    <p><strong>Описание:</strong>
+                        {% if book.description %}
+                            {{ book.description[:200] }}{% if book.description|length > 200 %}...{% endif %}
+                        {% else %}
+                            Нет описания
+                        {% endif %}
+                    </p>
+                    <p><strong>Страниц:</strong> {{ book.page_count or "Не указано" }}</p>
+                    <p><strong>Категории:</strong> {{ book.categories | join(", ") if book.categories else "Не указаны" }}</p>
+                </div>
+                {% endfor %}
+            </div>
+            {% elif show_books %}
+            <div class="no-results">
+                <p>Книги по запросу "{{ query }}" не найдены.</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="section">
+            <h2>Задание 2: Генератор шуток о Чаке Норрисе</h2>
+            <p>Случайные шутки из Chuck Norris Jokes API - надежный и быстрый текстовый API.</p>
+
+            <form action="/jokes/random" method="get">
+                <div class="form-group">
+                    <label for="category">Категория:</label>
+                    <select id="category" name="category">
+                        <option value="">Любая категория</option>
+                        {% for category in categories %}
+                        <option value="{{ category }}" {% if selected_category == category %}selected{% endif %}>
+                            {{ category }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit">Получить шутку!</button>
+            </form>
+
+            {% if show_joke and joke %}
+            <div class="joke-result">
+                <h3>Случайная шутка:</h3>
+                <div class="joke-card">
+                    <p class="joke-text">"{{ joke.joke }}"</p>
+                    <div class="joke-meta">
+                        <span class="category">Категория: {{ joke.category }}</span>
+                        {% if joke.id %}
+                        <span class="id">ID: {{ joke.id }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="api-links">
+                    <h4>Прямые ссылки API:</h4>
+                    <ul>
+                        <li><a href="/jokes/random/json{% if selected_category %}?category={{ selected_category }}{% endif %}" target="_blank">JSON версия шутки</a></li>
+                        <li><a href="/jokes/categories" target="_blank">Список всех категорий (JSON)</a></li>
+                        <li><a href="https://api.chucknorris.io" target="_blank">Официальная документация API</a></li>
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="examples">
+                <h4>Быстрые примеры:</h4>
+                <div class="example-links">
+                    <a href="/jokes/random">Случайная шутка</a> |
+                    <a href="/jokes/random?category=dev">Dev шутка</a> |
+                    <a href="/jokes/random?category=movie">Кино шутка</a> |
+                    <a href="/jokes/random?category=sport">Спортивная шутка</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
